@@ -14,21 +14,23 @@ tasks:
       - |
         curl -SLO https://github.com/appleboy/drone-lambda/releases/download/v$DRONE_LAMBDA_VERSION/drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64
         mv drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64 drone-lambda
-        mv drone-lambda ~/bin/drone-lambda
+        mv drone-lambda ~/bin/drone-lambda && chmod +x ~/bin/drone-lambda
+        drone-lambda --version
 
     - run: |
+        set -ex
         MODIFIED_FOLDERS=$(git diff-tree --no-commit-id --name-only $CI_COMMIT_SHA | xargs)
         FOLDERS=("python-1" "python-2")
         LAMBDA_FUNCTIONS=("python1" "python2")
 
-        for index in "${!FOLDERS[@]}"; then
-          funcPath="${FOLDER[$index]}"
+        for index in "${!FOLDERS[@]}"; do
+          funcPath="${FOLDERS[$index]}"
           funcName="${LAMBDA_FUNCTIONS[$index]}"
-          
+
           test -n "$funcPath"
           test -n "$funcName"
 
-          if [[ $MODIFIED_FOLDERS =~ $funcPath ]]; then
+          if [[ "$MODIFIED_FOLDERS" =~ "$funcPath" ]]; then
             echo "\t Detected changes in $funcPath, deploying code on Lambda $funcName"
 
             pushd $funcPath && \
