@@ -6,8 +6,8 @@ def lambda_handler(event, context):
     pokemon = event.get('pokemon')
     if pokemon is None:
         return {
-            'statusCode': 400,
-            'body': json.dumps('Missing pokemon attribute in the event object')
+          'statusCode': 400,
+          'body': json.dumps('Missing pokemon attribute in the event object')
         }
 
     # If we have a pokemon name/ID passed in, try to get info for it:
