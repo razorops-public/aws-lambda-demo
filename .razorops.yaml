@@ -12,8 +12,7 @@ tasks:
       - git diff-tree --no-commit-id --name-only $CI_COMMIT_SHA -r
       - echo "installing drone-lambda $DRONE_LAMBDA_VERSION"
       - |
-        curl -SLO https://github.com/appleboy/drone-lambda/releases/download/v$DRONE_LAMBDA_VERSION/drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64.xz
-        tar -xvzf drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64.xz .
+        curl -SLO https://github.com/appleboy/drone-lambda/releases/download/v$DRONE_LAMBDA_VERSION/drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64
         mv drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64 drone-lambda
         mv drone-lambda ~/bin/drone-lambda
 
