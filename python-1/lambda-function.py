@@ -10,7 +10,6 @@ def lambda_handler(event, context):
           'body': json.dumps('Missing pokemon attribute in the event object')
         }
 
-
     # If we have a pokemon name/ID passed in, try to get info for it:
     r = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon}")
 
