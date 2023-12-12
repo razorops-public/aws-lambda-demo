@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "deploy_policy" {
     sid       = "PermissionToPassARole"
     effect    = "Allow"
     actions   = ["iam:PassRole"]
-    resources = [aws_iam_role.role.arn]
+    resources = [var.create_role ? aws_iam_role.role[0].arn : "*"]
   }
 }
 
