@@ -17,7 +17,8 @@ tasks:
         mv drone-lambda ~/bin/drone-lambda && chmod +x ~/bin/drone-lambda
         drone-lambda --version
 
-    - run: |
+    - if: branch == "main"
+      run: |
         MODIFIED_FOLDERS=$(git diff-tree --no-commit-id --name-only $CI_COMMIT_SHA | xargs)
         FOLDERS=("python-1" "python-2")
         FUNCTIONS=("demo-py1" "demo-py2")
