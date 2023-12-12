@@ -10,32 +10,33 @@ tasks:
     - commands: 
       - echo "Changed files in $CI_COMMIT_SHA"
       - git diff-tree --no-commit-id --name-only $CI_COMMIT_SHA -r
-      - echo "installing drone-lambda $DRONE_LAMBDA_VERSION"
       - |
-        curl -SLO https://github.com/appleboy/drone-lambda/releases/download/v$DRONE_LAMBDA_VERSION/drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64.xz
-        tar -xvzf drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64.xz .
+        echo "Downloading drone-lambda $DRONE_LAMBDA_VERSION ..."
+        curl -sSLO https://github.com/appleboy/drone-lambda/releases/download/v$DRONE_LAMBDA_VERSION/drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64
         mv drone-lambda-$DRONE_LAMBDA_VERSION-linux-amd64 drone-lambda
-        mv drone-lambda ~/bin/drone-lambda
+        mv drone-lambda ~/bin/drone-lambda && chmod +x ~/bin/drone-lambda
+        drone-lambda --version
 
-    - run: |
+    - if: branch == "main"
+      run: |
         MODIFIED_FOLDERS=$(git diff-tree --no-commit-id --name-only $CI_COMMIT_SHA | xargs)
         FOLDERS=("python-1" "python-2")
-        LAMBDA_FUNCTIONS=("python1" "python2")
+        FUNCTIONS=("demo-py1" "demo-py2")
 
-        for index in "${!FOLDERS[@]}"; then
-          funcPath="${FOLDER[$index]}"
-          funcName="${LAMBDA_FUNCTIONS[$index]}"
-          
+        for index in "${!FOLDERS[@]}"; do
+          funcPath="${FOLDERS[$index]}"
+          funcName="${FUNCTIONS[$index]}"
+
           test -n "$funcPath"
           test -n "$funcName"
 
-          if [[ $MODIFIED_FOLDERS =~ $funcPath ]]; then
+          if [[ "$MODIFIED_FOLDERS" =~ "$funcPath" ]]; then
             echo "\t Detected changes in $funcPath, deploying code on Lambda $funcName"
 
             pushd $funcPath && \
               pip3 install -r requirements.txt -t . && \
-              zip -r code-$funcPath-$CI_COMMIT_SHA.zip . -x \*.pyc *.git* && \
-              drone-lambda --function-name=funcName --zip-file code-$funcName-$CI_COMMIT_SHA.zip && \
+              zip -r code-$funcName-$CI_COMMIT_SHA.zip . -x \*.pyc *.git* && \
+              drone-lambda --function-name=$funcName --zip-file code-$funcName-$CI_COMMIT_SHA.zip --commit.sha ${CI_COMMIT_SHA:0:8} --publish true && \
             popd
 
             echo "Deployed $funcPath on Lambda $funcName"
